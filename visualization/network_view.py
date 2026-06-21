@@ -84,6 +84,9 @@ class NetworkView(QWidget):
         self._scatter: Optional[pg.ScatterPlotItem] = None
         self._labels: list[pg.TextItem] = []
         self._last_result = None
+        self._default_info = (
+            "Run a prediction to populate the molecule–target network."
+        )
 
     # ── Public API ────────────────────────────────────────────────────────
 
@@ -117,10 +120,12 @@ class NetworkView(QWidget):
 
         n_t = sum(1 for d in node_meta.values() if d["type"] == "target")
         n_l = sum(1 for d in node_meta.values() if d["type"] == "ligand")
-        self._info.setText(
+        self._default_info = (
             f"Query → {n_t} predicted targets, {n_l} supporting ligands "
-            f"(scroll to zoom, drag to pan, click a node for details)."
+            f"(hover a node for details, click a target to open it, "
+            f"scroll to zoom, drag to pan)."
         )
+        self._info.setText(self._default_info)
         self.plot.autoRange()
 
     # ── Graph construction ────────────────────────────────────────────────
@@ -176,6 +181,7 @@ class NetworkView(QWidget):
                         "size": 9,
                         "smiles": comp.get("smiles", ""),
                         "compound_id": cid,
+                        "similarity": comp.get("similarity", 0.0),
                     }
                 graph.add_edge(
                     lnode, tnode, weight=max(0.05, comp.get("similarity", 0.1))
@@ -229,17 +235,44 @@ class NetworkView(QWidget):
             self.plot.addItem(label)
             self._labels.append(label)
 
-        self._scatter = pg.ScatterPlotItem(spots=spots, pxMode=True)
+        self._scatter = pg.ScatterPlotItem(
+            spots=spots,
+            pxMode=True,
+            hoverable=True,
+            hoverPen=pg.mkPen("#f0f6fc", width=2),
+            hoverSize=4,
+            tip=_node_tip,
+        )
         self._scatter.sigClicked.connect(self._on_clicked)
+        self._scatter.sigHovered.connect(self._on_hovered)
         self.plot.addItem(self._scatter)
 
     def _on_clicked(self, _scatter, points) -> None:
-        """Relay a node click as a ``node_clicked`` signal."""
+        """Relay a node click as a ``node_clicked`` signal and show its details."""
         if not len(points):
             return
         data = points[0].data()
         if isinstance(data, dict):
+            self._info.setText(_node_summary(data))
             self.node_clicked.emit(data)
+
+    def _on_hovered(self, _scatter, points, _ev=None) -> None:
+        """Show the hovered node's details in the info bar (live feedback)."""
+        try:
+            if points is not None and len(points):
+                data = points[0].data()
+                if isinstance(data, dict):
+                    self._info.setText(_node_summary(data))
+                    return
+        except (TypeError, IndexError):
+            pass
+        # Not hovering a node → restore the summary text.
+        self._info.setText(self._default_info)
+
+    @property
+    def info_text(self) -> str:
+        """Current text shown in the network info bar (useful for tests)."""
+        return self._info.text()
 
     def _expand(self) -> None:
         """Open the current network in a large, resizable, non-modal window."""
@@ -262,3 +295,50 @@ class NetworkView(QWidget):
         layout.addWidget(buttons)
         dialog.show()
         dialog.raise_()
+
+
+# ── Node detail helpers ─────────────────────────────────────────────────────
+
+
+def _node_summary(data: dict) -> str:
+    """A one-line description of a node for the info bar."""
+    if not isinstance(data, dict):
+        return ""
+    kind = data.get("type")
+    if kind == "target":
+        return (
+            f"Target: {data.get('label', '')} — {data.get('target_name', '')}  "
+            f"| confidence {data.get('confidence', 0):.2f}  (click to open)"
+        )
+    if kind == "ligand":
+        return (
+            f"Ligand: {data.get('label', '')}  "
+            f"| similarity {data.get('similarity', 0):.2f}  "
+            f"| {data.get('smiles', '')[:48]}"
+        )
+    if kind == "query":
+        return f"Query molecule: {data.get('smiles', '')[:60]}"
+    return ""
+
+
+def _node_tip(x: float, y: float, data) -> str:
+    """Tooltip text shown when hovering a node (PyQtGraph ``tip`` callback)."""
+    if not isinstance(data, dict):
+        return ""
+    kind = data.get("type")
+    if kind == "target":
+        return (
+            f"Target: {data.get('label', '')}\n"
+            f"{data.get('target_name', '')}\n"
+            f"Confidence: {data.get('confidence', 0):.2f}\n"
+            f"(click to view details)"
+        )
+    if kind == "ligand":
+        return (
+            f"Ligand: {data.get('label', '')}\n"
+            f"Similarity to query: {data.get('similarity', 0):.2f}\n"
+            f"{data.get('smiles', '')[:48]}"
+        )
+    if kind == "query":
+        return f"Query molecule\n{data.get('smiles', '')[:48]}"
+    return ""
