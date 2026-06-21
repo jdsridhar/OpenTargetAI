@@ -1,0 +1,1 @@
+"""OpenTargetAI database package."""

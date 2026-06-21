@@ -1,0 +1,1 @@
+"""OpenTargetAI prediction package."""

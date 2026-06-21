@@ -1,0 +1,35 @@
+# OpenTargetAI — ignored artifacts
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Generated databases & logs
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/structures/
+data/docking_*/
+logs/*.log
+
+# Generated reports / exports
+*.xlsx
+*.pdf
+opentargetai_report.*
+opentargetai_dashboard.html
+validation_report.txt
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
