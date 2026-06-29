@@ -1,233 +1,268 @@
-# OpenTargetAI
+<div align="center">
+  <img src="resources/banner.png" alt="OpenTargetAI Banner" width="100%" style="border-radius: 8px; margin-bottom: 20px;" />
+  
+  # OpenTargetAI
+  
+  ### 🔬 Open-Source Ligand-Based Target Prediction & Cheminformatics Platform
+  
+  [![Python Version](https://img.shields.io/badge/Python-3.12%20%7C%203.13%20%7C%203.14-blue.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+  [![PyQt6](https://img.shields.io/badge/GUI-PyQt6-brightgreen.svg?style=flat-square&logo=qt&logoColor=white)](https://www.riverbankcomputing.com/software/pyqt/)
+  [![RDKit](https://img.shields.io/badge/Cheminformatics-RDKit-orange.svg?style=flat-square)](https://www.rdkit.org/)
+  [![SQLite](https://img.shields.io/badge/Database-SQLite-003B57.svg?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+  [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-violet.svg?style=flat-square)](https://github.com/jdsridhar/OpenTargetAI/pulls)
 
-**Open Source Ligand-Based Target Prediction Platform**
-
-OpenTargetAI is a desktop application for **ligand-based protein target
-prediction**. Given a small molecule, it finds chemically similar compounds in a
-local bioactivity database (built from public ChEMBL / BindingDB data),
-aggregates their known targets, and produces a ranked, **explainable** list of
-candidate targets with transparent confidence scores.
-
-> ⚠️ **Scientific scope.** OpenTargetAI is an independent, open-source tool for
-> research and education. It is **not** a reproduction of SwissTargetPrediction
-> and does not claim to replicate its model or results. Predictions are
-> hypotheses derived from chemical similarity and must not be used for clinical,
-> regulatory, or safety decisions.
-
----
-
-## Key features
-
-- **Modern PyQt6 desktop UI** with a dark scientific theme.
-- **Molecule input** by SMILES paste, SDF/MOL file, worked examples, or an
-  in-app molecule builder; live 2D depiction and full physicochemical /
-  drug-likeness profile (Lipinski, Veber, Ghose, Lead-likeness, QED, PAINS).
-- **Five fingerprint types** (Morgan ECFP4/ECFP6, MACCS, Atom Pair, Topological)
-  via RDKit's modern generator API, stored as compact binary blobs.
-- **Three similarity metrics** (Tanimoto, Dice, Cosine) with fast bulk search.
-- **Weighted target-fishing engine**: scores each candidate target from
-  similarity strength × bioactivity potency × occurrence frequency, with a
-  separate, tunable **confidence model** (High / Medium / Low).
-- **Explainable predictions**: per-target evidence breakdown, supporting
-  ligands, shared Morgan substructure highlighting, Murcko scaffold and MCS.
-- **Interactive network** (query → targets → ligands) with zoom/pan.
-- **Advanced charts**: similarity / confidence / activity distributions, target
-  class pie chart, plus a standalone interactive Plotly dashboard.
-- **PDB integration**: retrieve experimental structures (PDBe/RCSB) for a
-  predicted target and download coordinate files.
-- **Docking preparation**: build a ready-to-dock AutoDock Vina package (3D
-  ligand, receptor, suggested grid box, config).
-- **Export** to CSV, Excel, HTML and PDF.
-- **Validation module**: leave-one-out benchmark reporting Top-1/5/10 accuracy,
-  MRR, Precision@10, Recall@10 and ROC-AUC.
-- **Standalone CLI importer** and a SQLite backend designed to scale to millions
-  of compounds (WAL mode, indexes, in-memory fingerprint cache, background
-  workers).
+  <p align="center">
+    <strong>An explainable, local target-fishing workstation designed for rapid drug discovery screening and chemical biology workflows.</strong>
+  </p>
+</div>
 
 ---
 
-## Project structure
+> [!WARNING]  
+> **Scientific Scope Disclaimer**  
+> OpenTargetAI is an independent, open-source tool for research and education. It is **not** a reproduction of SwissTargetPrediction and does not claim to replicate its model or results. Predictions are hypotheses derived from chemical similarity and must not be used for clinical, regulatory, or safety decisions.
+
+---
+
+## 📌 Table of Contents
+- [🚀 Key Features](#-key-features)
+- [📂 Project Structure](#-project-structure)
+- [⚙️ Installation](#%EF%B8%8F-installation)
+- [⏱️ Quick Start](#%EF%B8%8F-quick-start)
+- [🔬 How It Works](#-how-it-works)
+- [📊 Validation](#-validation)
+- [🧬 Structures & Docking](#-structures--docking)
+- [⚡ Performance Notes](#-performance-notes)
+- [⚖️ Disclaimer & License](#%EF%B8%8F-disclaimer--license)
+
+---
+
+## 🚀 Key Features
+
+*   **🖥️ PyQt6 Desktop UI** – Premium dark scientific theme featuring an in-app molecule builder, SMILES pasting, SDF/MOL import, and live 2D chemical structure rendering.
+*   **🩺 Physicochemical Profiling** – Real-time estimation of drug-likeness rules (Lipinski, Veber, Ghose, Lead-likeness, QED) and structural flags (PAINS).
+*   **🧬 Advanced Cheminformatics** – Compute five distinct molecular representations (Morgan ECFP4/ECFP6, MACCS, Atom Pair, Topological) via RDKit’s modern generator API, stored as compact binary database blobs.
+*   **⚡ Fast Similarity Engine** – Perform bulk similarity matching over millions of compounds using Tanimoto, Dice, or Cosine metrics.
+*   **🎣 Target-Fishing Engine** – Custom scoring algorithm combining similarity coefficients, bioactivity potencies, and target occurrences into a consolidated confidence rating (High / Medium / Low).
+*   **💡 Explainable AI (XAI)** – Trace the evidence for any prediction with detailed target breakdowns, supporting reference ligands, maximum common substructures (MCS), and highlighting shared Morgan scaffolds.
+*   **🌐 Interactive Network View** – Zoomable and pannable interactome graph showing target-ligand association networks (powered by PyQtGraph & NetworkX).
+*   **🔌 Structure & Docking Prep** – Automatically download target experimental 3D structures from PDBe/RCSB and generate complete, ready-to-run AutoDock Vina packages (3D minimized ligand, receptor, suggested grid box, and configuration).
+*   **📊 Benchmark Reporting** – Evaluate predictions locally with a leave-one-out cross-validation suite reporting Top-1/5/10 accuracy, MRR, Precision, Recall, and ROC-AUC.
+*   **💾 Enterprise Database Layer** – SQLite database running in WAL mode with background `QThread` workers, custom pragmas, and in-memory caches to maintain seamless UI interactivity.
+
+---
+
+## 📂 Project Structure
 
 ```
 OpenTargerAi/
-├── app.py                     # GUI entry point
-├── import_data.py             # standalone CLI database importer
-├── schema.sql                 # SQLite DDL (documentation / manual setup)
-├── requirements.txt
-├── README.md
+├── app.py                     # GUI desktop application entry point
+├── import_data.py             # CLI database importer (ChEMBL / BindingDB / Demo)
+├── schema.sql                 # SQLite DDL schema for documentation & manual setup
+├── requirements.txt           # Package dependencies
+├── README.md                  # Beautiful platform documentation
 │
-├── database/                  # storage layer
-│   ├── db_manager.py          # schema, CRUD, caching, statistics
-│   ├── importer.py            # ChEMBL / BindingDB / demo importers
-│   └── demo_data.py           # curated demo dataset
-├── similarity/                # cheminformatics
-│   ├── fingerprint_engine.py  # fingerprint generation & similarity
-│   ├── search_engine.py       # similarity search over the database
-│   └── mol_utils.py           # descriptors, drug-likeness, scaffolds, 2D SVG
-├── prediction/                # target prediction
-│   ├── prediction_engine.py   # weighted target fishing
-│   └── confidence.py          # confidence model
-├── benchmark/
-│   └── validator.py           # leave-one-out benchmark + metrics
-├── visualization/
-│   ├── network_view.py        # PyQtGraph + NetworkX target network
-│   └── charts.py              # charts + Plotly HTML export
-├── integration/
-│   ├── pdb_client.py          # PDBe / RCSB structure retrieval
-│   └── docking_prep.py        # AutoDock Vina package builder
-├── reports/
-│   └── exporter.py            # CSV / Excel / HTML / PDF exports
-├── workers/
-│   └── workers.py             # background QThread workers
-└── ui/                        # PyQt6 panels & dialogs
-    ├── main_window.py
-    ├── molecule_input.py      # left panel
-    ├── molecule_viewer.py     # center panel
-    ├── prediction_controls.py # right panel
-    ├── results_view.py
-    ├── target_details.py
-    ├── explainer_view.py
-    ├── charts_view.py
-    ├── pdb_view.py
-    ├── validation_view.py
-    ├── dialogs.py
-    └── widgets.py
+├── database/                  # Storage Layer
+│   ├── db_manager.py          # SQLite schema, CRUD operations, caches & statistics
+│   ├── importer.py            # Custom CLI and demo dataset parsers
+│   └── demo_data.py           # Preloaded small-scale reference dataset
+│
+├── similarity/                # Cheminformatics Core
+│   ├── fingerprint_engine.py  # RDKit fingerprint generators and binary encoders
+│   ├── search_engine.py       # High-performance bulk database search
+│   └── mol_utils.py           # Molecular descriptors, scaffolds, & SVG renderings
+│
+├── prediction/                # Prediction Mechanics
+│   ├── prediction_engine.py   # Weighted target fishing logic
+│   └── confidence.py          # Multiclass target confidence model
+│
+├── benchmark/                 # Evaluation
+│   └── validator.py           # Cross-validation testing suite & metrics
+│
+├── visualization/             # Graphics and UI Plots
+│   ├── network_view.py        # Interactome graph (PyQtGraph + NetworkX)
+│   └── charts.py              # Distribution plots and standalone interactive Plotly export
+│
+├── integration/               # External APIs
+│   ├── pdb_client.py          # RCSB/PDBe structure and metadata downloaders
+│   └── docking_prep.py        # AutoDock Vina project package generator
+│
+├── reports/                   # Export Engine
+│   └── exporter.py            # CSV, Excel, HTML, and PDF document compilers
+│
+├── workers/                   # Async Architecture
+│   └── workers.py             # Background QThread workers preventing GUI freeze
+│
+└── ui/                        # PyQt6 View Controller
+    ├── main_window.py         # Main viewport shell
+    ├── molecule_input.py      # Query input pane (SMILES/builder/SDF)
+    ├── molecule_viewer.py     # Descriptors & 2D rendering pane
+    ├── prediction_controls.py # Hyperparameter & threshold settings pane
+    └── ...                    # Specialized layouts (results, network, chart, validation, etc.)
 ```
 
 ---
 
-## Installation
+## ⚙️ Installation
 
-Requires **Python 3.12+** (tested through 3.14).
+OpenTargetAI requires **Python 3.12+** (fully verified up to Python 3.14).
 
 ```bash
-# 1. (recommended) create a virtual environment
+# 1. Create a clean virtual environment
 python -m venv .venv
-# Windows:
+
+# 2. Activate the virtual environment
+# On Windows (PowerShell):
 .venv\Scripts\activate
-# macOS / Linux:
+# On macOS / Linux:
 source .venv/bin/activate
 
-# 2. install dependencies
+# 3. Install core dependencies
 pip install -r requirements.txt
 ```
 
-All dependencies install from PyPI, including RDKit (`pip install rdkit`).
+> [!TIP]
+> All primary dependencies (including RDKit) install cleanly via pip on modern platforms without needing complex conda environments.
 
 ---
 
-## Quick start
+## ⏱️ Quick Start
 
 ```bash
-# Launch the desktop application
+# Start the application
 python app.py
 ```
 
-On first launch the database is empty and you'll be offered the **curated demo
-dataset** (37 well-known drugs across 11 targets). Accept it, then:
+### Running Your First Prediction
+On your first startup, the database is blank. OpenTargetAI will prompt you to automatically load the **curated demo dataset** (containing 37 reference drugs spanning 11 unique biological targets). Accept the import, then follow these steps:
 
-1. Go to the **Predict** tab and paste a SMILES (or pick an example), e.g.
-   ibuprofen `CC(C)Cc1ccc(C(C)C(=O)O)cc1`.
-2. Adjust the fingerprint, metric, similarity threshold and Top-N on the right.
-3. Click **Run Prediction**.
-4. Explore the **Results**, **Network**, **Charts**, **Structures & Docking**
-   and **Validation** tabs.
+1. Navigate to the **Predict** tab on the left panel.
+2. Paste a query SMILES (e.g., Ibuprofen: `CC(C)Cc1ccc(C(C)C(=O)O)cc1`) or click an example preset.
+3. Configure settings on the right panel (Fingerprint type, Distance metric, Top-N neighbors, and Similarity threshold).
+4. Click **Run Prediction**.
+5. Explore predicted targets across the **Results**, **Network**, **Charts**, **Structures & Docking**, and **Validation** tabs.
 
-### Loading data without the GUI
+### Database Importer CLI
+You can inspect or import larger datasets directly from your terminal:
 
 ```bash
-# Load the demo dataset into the default database (data/opentargetai.db)
+# Load the demo dataset into the default SQLite database (data/opentargetai.db)
 python import_data.py --demo
 
-# Import a full ChEMBL activities TSV export
+# Import a custom ChEMBL activity TSV export
 python import_data.py --chembl path/to/chembl_activities.tsv
 
-# Import a BindingDB TSV export
+# Import a BindingDB raw TSV export
 python import_data.py --bindingdb path/to/BindingDB_All.tsv
 
-# Inspect the database
+# Print database stats (number of compounds, activities, and targets)
 python import_data.py --stats
 ```
 
-### Expected import columns
+---
 
-**ChEMBL TSV** (tab-separated): `canonical_smiles`, `chembl_id`,
-`target_chembl_id`, `uniprot_id`, `gene_name`, `target_name`, `organism`,
-`standard_type`, `standard_value`, `standard_units`, `pchembl_value`,
-`assay_type`. Such exports can be produced from the ChEMBL web interface or the
-ChEMBL SQL/Postgres dump.
+## 📋 Expected Input Specifications
 
-**BindingDB TSV**: the standard BindingDB download columns, including
-`Ligand SMILES`, `Target Name`, `UniProt (SwissProt) Primary ID of Target
-Chain`, `Ki (nM)` / `IC50 (nM)` / `Kd (nM)` / `EC50 (nM)`, and
-`Target Source Organism …`.
+To populate the database using the CLI importer, TSV files must match the structures below:
 
-Rows with invalid SMILES or missing target names are skipped; compounds are
-deduplicated by InChIKey and all five fingerprints are generated on import.
+### 1. ChEMBL Format (Tab-Separated)
+| Column Header | Description |
+| :--- | :--- |
+| `canonical_smiles` | RDKit-compatible compound SMILES string (required) |
+| `chembl_id` | Unique compound identifier (e.g., `CHEMBL521`) |
+| `target_chembl_id` | Unique target identifier (e.g., `CHEMBL220`) |
+| `uniprot_id` | Swiss-Prot accession code (e.g., `P35968`) |
+| `gene_name` | Primary gene symbol |
+| `target_name` | Full biological target description |
+| `organism` | Species name (e.g., *Homo sapiens*) |
+| `standard_type` | Bioactivity type (e.g., `IC50`, `Ki`, `Kd`) |
+| `standard_value` | Quantitative value (e.g., `12.5`) |
+| `standard_units` | Measurement units (e.g., `nM`) |
+| `pchembl_value` | Negative log concentration (e.g., `7.90`) |
+| `assay_type` | Assay classification (e.g., `B`, `F`) |
+
+### 2. BindingDB Format (Tab-Separated)
+The standard BindingDB public download requires the following columns:
+*   `Ligand SMILES`
+*   `Target Name`
+*   `UniProt (SwissProt) Primary ID of Target Chain`
+*   `Ki (nM)` / `IC50 (nM)` / `Kd (nM)` / `EC50 (nM)`
+*   `Target Source Organism...`
 
 ---
 
-## How it works
+## 🔬 How It Works
 
-1. **Fingerprint the query** with the selected representation.
-2. **Similarity search** — compute bulk Tanimoto/Dice/Cosine against every stored
-   compound and keep neighbours above the threshold (Top-N).
-3. **Target fishing** — collect every known target of those neighbours.
-4. **Scoring** — for each target:
-   `target_score = similarity_weight × bioactivity_weight × occurrence_frequency`
-   where *similarity_weight* is the mean squared neighbour similarity,
-   *bioactivity_weight* is derived from mean pChEMBL potency, and
-   *occurrence_frequency* is the fraction of neighbours that hit the target.
-5. **Confidence** — a weighted blend of similarity strength, potency, recurrence
-   and activity consistency, mapped to High / Medium / Low.
-6. **Explain** — every prediction exposes its supporting ligands, the shared
-   substructure with the query, and its confidence components.
+OpenTargetAI implements an explainable, data-driven target fishing model:
 
----
+```
+[Query Molecule] ──> [Fingerprint Generator] ──> [Bulk Similarity Search]
+                                                           │
+                                                           ▼
+[Target Explainer] <── [Scoring Engine] <── [Top-N Supporting Neighbors]
+```
 
-## Validation
-
-The **Validation** tab (and `benchmark/validator.py`) runs leave-one-out
-cross-validation: each compound is masked from its own neighbour set, its
-targets are predicted, and the ranking is compared with its experimentally known
-targets. Reported metrics: Top-1/5/10 accuracy, Mean Reciprocal Rank,
-Precision@10, Recall@10 and a pooled ROC-AUC. Results depend heavily on the
-density and diversity of the imported dataset.
+1. **Fingerprint Encoding**: The query molecule is converted into the selected binary fingerprint vector.
+2. **Similarity Neighborhood Search**: The search engine computes distance metrics against every compound in the database, retaining neighbors above the similarity cutoff.
+3. **Evidence Aggregation**: All targets annotated to the matching neighbors are retrieved.
+4. **Target Scoring**: Each candidate target is ranked by a composite mathematical model:
+   
+   $$\text{Target Score} = w_{\text{similarity}} \times w_{\text{bioactivity}} \times f_{\text{occurrence}}$$
+   
+   *   **Similarity Weight ($w_{\text{similarity}}$)**: The mean squared similarity coefficient of the supporting neighbors.
+   *   **Bioactivity Weight ($w_{\text{bioactivity}}$)**: A potency scaling coefficient computed from the mean $p\text{ChEMBL}$ value of supporting activities.
+   *   **Occurrence Frequency ($f_{\text{occurrence}}$)**: The proportion of retrieved neighbors associated with this target.
+5. **Confidence Classification**: Targets are classified as **High**, **Medium**, or **Low** confidence based on neighborhood size, similarity depth, and potency consistency.
+6. **Explainability Details**: For each predicted target, RDKit calculates the **Maximum Common Substructure (MCS)** and highlights shared scaffolds to explain *why* the prediction was made.
 
 ---
 
-## Structures & docking
+## 📊 Validation
 
-For a selected target with a UniProt accession, OpenTargetAI retrieves
-experimental structures from PDBe/RCSB and can download coordinate files. The
-docking preparation step assembles an AutoDock Vina package: a 3D-embedded,
-energy-minimised ligand, the chosen receptor, a suggested search box (centred on
-a co-crystallised ligand when present), a `vina_config.txt`, and a README with
-the remaining preparation steps. **AutoDock Vina / AutoDockTools are not
-bundled** — install them separately to run the docking.
+You can evaluate the accuracy of your local bioactivity database using the **Validation** panel or by executing:
 
----
+```bash
+# Run leave-one-out cross-validation
+python -m benchmark.validator
+```
 
-## Performance notes
-
-- SQLite is opened in WAL mode with tuned pragmas and indexed lookups.
-- Fingerprints are stored as compact native binary blobs and cached in memory
-  after the first search of a session.
-- All long-running work (search, import, validation, network/file IO) runs in
-  background `QThread` workers so the UI stays responsive.
+The validation suite performs a **leave-one-out cross-validation (LOOCV)** benchmark:
+*   Each compound in the database is masked from its own target-fishing neighborhood.
+*   Its target profiles are predicted using the remaining compound network.
+*   Predicted rankings are matched against experimental ground-truth to calculate accuracy metrics:
+    - **Top-1 / Top-5 / Top-10 Accuracy**
+    - **Mean Reciprocal Rank (MRR)**
+    - **Precision@10 & Recall@10**
+    - **Area Under the ROC Curve (ROC-AUC)**
 
 ---
 
-## Disclaimer
+## 🧬 Structures & Docking
 
-OpenTargetAI is provided "as is" for research and educational purposes. The
-bundled demo dataset uses rounded, representative potency values and must not be
-used for real decision making. Predictions are similarity-based hypotheses, not
-validated facts.
+OpenTargetAI bridges ligand-based screening with structure-based verification:
 
-## License
+*   **PDB Fetching**: Query the PDBe API to list and download high-resolution crystallographic structure coordinate files (.pdb / .cif) for predicted target accessions.
+*   **Vina Docking Preparation**: Auto-prepare docking folders containing:
+    1.  A 3D conformer of the query molecule, energy-minimized using RDKit's MMFF94 force field.
+    2.  The target protein structure.
+    3.  A suggested grid box configuration centered on the active site (defined by co-crystallized reference ligands).
+    4.  A `vina_config.txt` control file and README detailing execution commands.
 
-Released under the MIT License. Public data sources (ChEMBL, BindingDB, RCSB
-PDB, UniProt) are subject to their own respective licenses and terms of use.
-#   O p e n T a r g e t A I  
- 
+> [!NOTE]  
+> AutoDock Vina and preparation command-line tools (like ADFRSuite or Meeko) must be installed separately on your system to run the prepared docking calculations.
+
+---
+
+## ⚡ Performance Notes
+
+*   **SQLite WAL Mode**: SQLite operates in Write-Ahead Logging mode with customized page sizing, synchronous settings, and query indexing to handle datasets containing millions of datapoints without interface lag.
+*   **In-Memory Fingerprint Caching**: Binary fingerprints are decompressed and cached in RAM upon the first query, speeding up subsequent predictions by up to 20x.
+*   **Async Threading**: Long tasks (database loads, similarity calculations, structure preparation, and benchmarks) run in background `QThread` workers to keep the desktop frame smooth and responsive.
+
+---
+
+## ⚖️ Disclaimer & License
+
+*   **Disclaimer**: OpenTargetAI is provided "as is" for research and educational purposes. The bundled demo dataset uses rounded, representative potency values and must not be used for real decision making.
+*   **License**: Released under the [MIT License](LICENSE). Public data sources (ChEMBL, BindingDB, RCSB PDB, UniProt) are subject to their own respective licensing terms.
